@@ -28,15 +28,39 @@ class Task {
     }
     protected function getUniqueId() {
         // Assignment: Code to get new unique ID
-        return -1; // Placeholder return for now
+        $newID = count($this->TaskDataSource);
+        if($newID == 0) {
+            ++$newID;
+            return $newID;
+        } else {
+            sort($this->TaskDataSource);
+            if ($newID < (int)end($this->TaskDataSource)->TaskId) {
+                $newID = (int)end($this->TaskDataSource)->TaskId;
+                ++$newID;
+            }
+            return $newID;
+        }
+    }
+    public function loadFromFile($Path) {
+        $TempTaskDataSource = file_get_contents($Path);
+        if (strlen($TempTaskDataSource) > 0)
+            $TempTaskDataSource = json_decode($TempTaskDataSource); // Should decode to an array of Task objects
+        else
+            $TempTaskDataSource = array(); // If it does not, then the data source is assumed to be empty and we create an empty array
+        return $TempTaskDataSource;
+
     }
     protected function LoadFromId($Id = null) {
         if ($Id) {
-            // Assignment: Code to load details here...
+            $this->TaskDataSource = $this->loadFromFile($this->TaskDataSourcePath);
+            foreach ($this->TaskDataSource as $task) {
+                if($Id == $task->TaskId) {
+                    return json_encode($task);
+                }
+            }
         } else
             return null;
     }
-
     public function Save() {
         if($this->TaskId == -1) {
             $this->TaskId = $this->getUniqueId();
