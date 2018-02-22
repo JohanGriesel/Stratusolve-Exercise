@@ -38,7 +38,19 @@ class Task {
     }
 
     public function Save() {
-        //Assignment: Code to save task here
+        if($this->TaskId == -1) {
+            $this->TaskId = $this->getUniqueId();
+            array_push($this->TaskDataSource, $this);
+        } else {
+            foreach ($this->TaskDataSource as $task) {
+                if($this->TaskId == $task->TaskId) {
+                    $task->TaskName = $this->TaskName;
+                    $task->TaskDescription = $this->TaskDescription;
+                }
+            }
+        }
+        file_put_contents('Task_Data.txt', json_encode($this->TaskDataSource));
+        echo $this->TaskId;
     }
     public function Delete() {
         //Assignment: Code to delete task here
