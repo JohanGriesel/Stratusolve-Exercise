@@ -84,6 +84,8 @@
             $('#deleteTask').show();
             currentTaskId = triggerElement.attr("id");
             console.log('Task ID: '+triggerElement.attr("id"));
+            $('#InputTaskName').val(document.getElementById(currentTaskId).children[0].firstChild.data);
+            $('#InputTaskDescription').val(document.getElementById(currentTaskId).children[1].firstChild.data);
         }
     });
     $('#saveTask').click(function() {
