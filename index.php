@@ -100,8 +100,13 @@
         updateTaskList();
     });
     $('#deleteTask').click(function() {
-        //Assignment: Implement this functionality
-        alert('Delete... Id:'+currentTaskId);
+        var taskToUpdate = {"TaskId": currentTaskId, "TaskName": document.getElementById('InputTaskName').value, "TaskDescription": document.getElementById('InputTaskDescription').value};
+        $.post("update_task.php",
+            {"action":"delete", "taskToUpdate":taskToUpdate },
+            function ( data ) {
+                alert('Delete... Id:'+data);
+                currentTaskId = data;
+            });
         $('#myModal').modal('hide');
         updateTaskList();
     });
