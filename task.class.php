@@ -53,7 +53,15 @@ class Task {
         echo $this->TaskId;
     }
     public function Delete() {
-        //Assignment: Code to delete task here
+        $this->TaskDataSource = $this->loadFromFile($this->TaskDataSourcePath);
+        //echo '$this->TaskId=' . $this->TaskId . ' | $this->TaskName=' . $this->TaskName . ' | $this->TaskDescription=' . $this->TaskDescription . '\n<br>/n';
+        for ($pos = 0; $pos < count($this->TaskDataSource); $pos++) {
+            if ($this->TaskDataSource[$pos]->TaskId == $this->TaskId) {
+                unset($this->TaskDataSource[$pos]);
+            }
+        }
+        file_put_contents($this->TaskDataSourcePath, json_encode($this->TaskDataSource));
+        echo $this->TaskId;
     }
 }
 ?>
