@@ -89,8 +89,13 @@
         }
     });
     $('#saveTask').click(function() {
-        //Assignment: Implement this functionality
-        alert('Save... Id:'+currentTaskId);
+        var taskToUpdate = {"TaskId": currentTaskId, "TaskName": document.getElementById('InputTaskName').value, "TaskDescription": document.getElementById('InputTaskDescription').value};
+        $.post("update_task.php",
+            {"action":"update", "taskToUpdate":taskToUpdate },
+            function ( data ) {
+                alert('Update... Id:'+data);
+                currentTaskId = data;
+            });
         $('#myModal').modal('hide');
         updateTaskList();
     });
