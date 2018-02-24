@@ -60,18 +60,6 @@
             </button>
             <div id="TaskList" class="list-group">
                 <!-- Assignment: These are simply dummy tasks to show how it should look and work. You need to dynamically update this list with actual tasks -->
-                <a id="1" href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">
-                    <h4 class="list-group-item-heading">Task Name</h4>
-                    <p class="list-group-item-text">Task Description</p>
-                </a>
-                <a id="2" href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">
-                    <h4 class="list-group-item-heading">Task Name</h4>
-                    <p class="list-group-item-text">Task Description</p>
-                </a>
-                <a id="3" href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">
-                    <h4 class="list-group-item-heading">Task Name</h4>
-                    <p class="list-group-item-text">Task Description</p>
-                </a>
             </div>
         </div>
         <div class="col-md-3">
@@ -83,27 +71,50 @@
 <script type="text/javascript" src="assets/js/jquery-1.12.3.min.js"></script>
 <script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+    var currentTaskId = -1;
     $('#myModal').on('show.bs.modal', function (event) {
         var triggerElement = $(event.relatedTarget); // Element that triggered the modal
         var modal = $(this);
         if (triggerElement.attr("id") == 'newTask') {
             modal.find('.modal-title').text('New Task');
             $('#deleteTask').hide();
+            currentTaskId = -1;
         } else {
             modal.find('.modal-title').text('Task details');
             $('#deleteTask').show();
+            currentTaskId = triggerElement.attr("id");
             console.log('Task ID: '+triggerElement.attr("id"));
+            $('#InputTaskName').val(document.getElementById(currentTaskId).children[0].firstChild.data);
+            $('#InputTaskDescription').val(document.getElementById(currentTaskId).children[1].firstChild.data);
         }
     });
     $('#saveTask').click(function() {
-        //Assignment: Implement this functionality
-        alert('You clicked save! Now implement this functionality.');
+        var taskToUpdate = {"TaskId": currentTaskId, "TaskName": document.getElementById('InputTaskName').value, "TaskDescription": document.getElementById('InputTaskDescription').value};
+        $.post("update_task.php",
+            {"action":"update", "taskToUpdate":taskToUpdate },
+            function ( data ) {
+                alert('Update... Id:'+data);
+                currentTaskId = data;
+            });
         $('#myModal').modal('hide');
+        updateTaskList();
     });
     $('#deleteTask').click(function() {
-        //Assignment: Implement this functionality
-        alert('You clicked delete! Now implement this functionality.');
+        var taskToUpdate = {"TaskId": currentTaskId, "TaskName": document.getElementById('InputTaskName').value, "TaskDescription": document.getElementById('InputTaskDescription').value};
+        $.post("update_task.php",
+            {"action":"delete", "taskToUpdate":taskToUpdate },
+            function ( data ) {
+                alert('Delete... Id:'+data);
+                currentTaskId = data;
+            });
         $('#myModal').modal('hide');
+        updateTaskList();
     });
+    function updateTaskList() {
+        $.post("list_tasks.php", function( data ) {
+            $( "#TaskList" ).html( data );
+        });
+    }
+    updateTaskList();
 </script>
 </html>
