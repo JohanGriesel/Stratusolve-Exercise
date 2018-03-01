@@ -72,37 +72,63 @@
 <script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
 <script type="text/javascript">
     var currentTaskId = -1;
-    $('#myModal').on('show.bs.modal', function (event) {
-        var triggerElement = $(event.relatedTarget); // Element that triggered the modal
-        var modal = $(this);
-        if (triggerElement.attr("id") == 'newTask') {
-            modal.find('.modal-title').text('New Task');
-            $('#deleteTask').hide();
-            currentTaskId = -1;
-        } else {
-            modal.find('.modal-title').text('Task details');
-            $('#deleteTask').show();
-            currentTaskId = triggerElement.attr("id");
-            console.log('Task ID: '+triggerElement.attr("id"));
-        }
-    });
-    $('#saveTask').click(function() {
-        //Assignment: Implement this functionality
-        alert('Save... Id:'+currentTaskId);
-        $('#myModal').modal('hide');
-        updateTaskList();
-    });
-    $('#deleteTask').click(function() {
-        //Assignment: Implement this functionality
-        alert('Delete... Id:'+currentTaskId);
-        $('#myModal').modal('hide');
-        updateTaskList();
-    });
-    function updateTaskList() {
-        $.post("list_tasks.php", function( data ) {
-            $( "#TaskList" ).html( data );
-        });
-    }
-    updateTaskList();
+	$('#myModal').on('show.bs.modal',function(event){
+		var triggerElement = $(event.relatedTarget); // Element that triggered the modal
+		var modal = $(this);
+		if(triggerElement.attr("id") == 'newTask'){
+			modal.find('.modal-title').text('New Task');
+			$('#deleteTask').hide();
+			currentTaskId = -1;
+		}else{
+			modal.find('.modal-title').text('Task details');
+			$('#deleteTask').show();
+			currentTaskId = triggerElement.attr("id");
+			console.log('Task ID: '+triggerElement.attr("id"));
+		}
+	});
+	$('#saveTask').click(function(){
+		var taskName = $("#InputTaskName").val();
+		var taskDescription = $("#InputTaskDescription").val();
+		var data = {taskID:currentTaskId, task_name:taskName, task_description:taskDescription, process:'save'};
+		$.post('update_task.php',data,function(feedback){
+			var message = feedback.message;
+			var msgClass = 'alert alert-danger';
+			if(feedback.success){
+				msgClass = 'alert alert-success';
+				updateTaskList();
+			}
+			var messageBox = $('<div id="message-feedback" class="' + msgClass + '">' + message + '</div>');
+			$(".modal-body form").prepend(messageBox);
+			setTimeout(function(){
+				$("#message-feedback").remove();
+				$("#InputTaskName").val('');
+				$("#InputTaskDescription").val('');
+				$('#myModal').modal('hide');
+			},1000);
+		},'json');
+	});
+	$('#deleteTask').click(function(){
+		var data = {taskID:currentTaskId,process:'delete'};
+		$.post('update_task.php',data,function(feedback){
+			var message = feedback.message;
+			var msgClass = 'alert alert-danger';
+			if (feedback.success){
+				msgClass = 'alert alert-success';
+				updateTaskList();
+			}
+			var messageBox = $('<div id="message-feedback" class="' + msgClass + '">' + message + '</div>');
+			$(".modal-body form").prepend(messageBox);
+			setTimeout(function(){
+				$("#message-feedback").remove();
+				$('#myModal').modal('hide');
+			},1000);
+		},'json');
+	});
+	function updateTaskList(){
+		$.post("list_tasks.php",function(data){
+			$("#TaskList").html(data);
+		});
+	}
+	updateTaskList();
 </script>
 </html>
