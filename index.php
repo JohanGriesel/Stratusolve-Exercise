@@ -40,7 +40,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button id="deleteTask" type="button" class="btn btn-danger">Delete Task</button>
-                <button id="saveTask" type="button" class="btn btn-primary">Save changes</button>
+                <button id="saveTask" type="button" value="saveTask" class="btn btn-primary">Save changes</button>
             </div>
         </div>
     </div>
@@ -60,18 +60,6 @@
             </button>
             <div id="TaskList" class="list-group">
                 <!-- Assignment: These are simply dummy tasks to show how it should look and work. You need to dynamically update this list with actual tasks -->
-                <a id="1" href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">
-                    <h4 class="list-group-item-heading">Task Name</h4>
-                    <p class="list-group-item-text">Task Description</p>
-                </a>
-                <a id="2" href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">
-                    <h4 class="list-group-item-heading">Task Name</h4>
-                    <p class="list-group-item-text">Task Description</p>
-                </a>
-                <a id="3" href="#" class="list-group-item" data-toggle="modal" data-target="#myModal">
-                    <h4 class="list-group-item-heading">Task Name</h4>
-                    <p class="list-group-item-text">Task Description</p>
-                </a>
             </div>
         </div>
         <div class="col-md-3">
@@ -83,27 +71,87 @@
 <script type="text/javascript" src="assets/js/jquery-1.12.3.min.js"></script>
 <script type="text/javascript" src="assets/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+    var currentTaskId = -1;
     $('#myModal').on('show.bs.modal', function (event) {
         var triggerElement = $(event.relatedTarget); // Element that triggered the modal
         var modal = $(this);
         if (triggerElement.attr("id") == 'newTask') {
             modal.find('.modal-title').text('New Task');
             $('#deleteTask').hide();
+            currentTaskId = -1;
         } else {
             modal.find('.modal-title').text('Task details');
             $('#deleteTask').show();
+            currentTaskId = triggerElement.attr("id");
             console.log('Task ID: '+triggerElement.attr("id"));
         }
     });
+
     $('#saveTask').click(function() {
         //Assignment: Implement this functionality
-        alert('You clicked save! Now implement this functionality.');
-        $('#myModal').modal('hide');
+        //alert('Save... Id:'+currentTaskId);
+
+        var taskName = $("#InputTaskName").val();
+        var taskDescription = $("#InputTaskDescription").val();
+
+        var data = {task_id:currentTaskId, task_name:taskName, task_description:taskDescription, action:'save'};
+
+
+        $.post('update_task.php', data, function (feedback) {
+            var message = feedback.message;
+            var messageClass = 'alert alert-danger';
+            if (feedback.success) {
+                messageClass = 'alert alert-success';
+                updateTaskList();
+            }
+
+            var messageBox = $('<div id="feedback-message" class="' + messageClass + '">' + message + '</div>');
+
+            $(".modal-body form").prepend(messageBox);
+            setTimeout(function() {
+                $("#feedback-message").remove();
+                $("#InputTaskName").val('');
+                $("#InputTaskDescription").val('');
+                $('#myModal').modal('hide');
+            }, 3000);
+
+        }, 'json');
+
     });
+
     $('#deleteTask').click(function() {
         //Assignment: Implement this functionality
-        alert('You clicked delete! Now implement this functionality.');
-        $('#myModal').modal('hide');
+        //alert('Delete... Id:'+currentTaskId);
+
+        var data = {task_id:currentTaskId, action:'delete'};
+
+        $.post('update_task.php', data, function (feedback) {
+
+            var message = feedback.message;
+            var messageClass = 'alert alert-danger';
+            if (feedback.success) {
+                messageClass = 'alert alert-success';
+                updateTaskList();
+            }
+
+            var messageBox = $('<div id="feedback-message" class="' + messageClass + '">' + message + '</div>');
+
+            $(".modal-body form").prepend(messageBox);
+            setTimeout(function() {
+                $("#feedback-message").remove();
+                $('#myModal').modal('hide');
+            }, 3000);
+
+        }, 'json');
+
     });
+
+    function updateTaskList() { 
+        $.post("list_tasks.php", function( data ) {
+            $( "#TaskList" ).html( data );
+        });
+    }
+
+    updateTaskList();
 </script>
 </html>
